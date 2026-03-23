@@ -109,7 +109,7 @@ export default function App() {
       const data = await res.json();
       if (data.error) throw new Error(data.error.message);
 
-      const content = data.content?.find((b) => b.type === "text")?.text ?? "";
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
       setGeneratedContent(content);
       setStage("done");
     } catch (e) {
