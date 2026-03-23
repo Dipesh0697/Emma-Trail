@@ -9,8 +9,8 @@ import { generateDocxBlob } from "./utils/generateDocx";
 
 const STAGES = ["upload_template", "upload_sources", "describe", "generating", "done"];
 
-const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
-const MODEL   = "claude-sonnet-4-20250514";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const MODEL   = "gemini-2.0-flash";
 
 const card = {
   background: "var(--color-bg-primary)",
@@ -95,20 +95,16 @@ export default function App() {
     const prompt = buildPrompt({ templateText, parsedExcels, parsedWords, description });
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 4000,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          }),
+        }
+      );
 
       const data = await res.json();
       if (data.error) throw new Error(data.error.message);
